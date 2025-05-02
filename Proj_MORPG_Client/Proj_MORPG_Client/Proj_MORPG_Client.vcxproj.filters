@@ -38,6 +38,12 @@
     <Filter Include="Engine\Scene">
       <UniqueIdentifier>{9b48009c-0ff3-4280-ae9d-2ce52461ace6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\RenderTypes">
+      <UniqueIdentifier>{8aa6bd25-7e0a-476a-9f08-4b899406f832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Util">
+      <UniqueIdentifier>{4fab9daa-1e70-4601-b54c-862a29e09115}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameApp.cpp">
@@ -57,6 +63,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Scene\Scene.cpp">
       <Filter>Engine\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Util\ShaderUtils.cpp">
+      <Filter>Engine\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,5 +87,16 @@
     <ClInclude Include="Engine\Scene\Scene.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\RenderTypes\Vertex.h">
+      <Filter>Engine\RenderTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Util\ShaderUtils.h">
+      <Filter>Engine\Util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Triangle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

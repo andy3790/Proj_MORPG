@@ -1,10 +1,12 @@
 #include "Engine/Scene/Scene.h"
-#include <iostream>
+#include "App/stdafx.h"
+#include "Engine/Renderer/Renderer.h"
+#include <memory>
 
-void Scene::Initialize()
+
+void Scene::Initialize(Renderer* renderer)
 {
-    // TODO: 로딩 또는 초기화 코드
-    std::cout << "Scene initialized.\\n";
+    m_renderer = renderer;
 }
 
 void Scene::Update(float deltaTime)
@@ -14,5 +16,13 @@ void Scene::Update(float deltaTime)
 
 void Scene::Render(ID3D12GraphicsCommandList* commandList)
 {
-    // TODO: 오브젝트 그리기
+    commandList->SetPipelineState(m_renderer->GetPipelineState());
+    commandList->SetGraphicsRootSignature(m_renderer->GetRootSignature());
+
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    D3D12_VERTEX_BUFFER_VIEW* vbView = m_renderer->GetVertexBufferView();
+    commandList->IASetVertexBuffers(0, 1, vbView);
+
+    commandList->DrawInstanced(3, 1, 0, 0); // 삼각형 1개 (정점 3개)
 }

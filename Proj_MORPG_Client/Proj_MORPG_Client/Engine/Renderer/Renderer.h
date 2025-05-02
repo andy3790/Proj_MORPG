@@ -16,7 +16,11 @@ public:
     void Shutdown();
 
 public: // Getter
-    ID3D12GraphicsCommandList* GetCommandList() { return m_commandList.Get(); }
+    ID3D12GraphicsCommandList* GetCommandList() const { return m_commandList.Get(); }
+    ID3D12PipelineState* GetPipelineState() const { return m_pipelineState.Get(); }
+    ID3D12RootSignature* GetRootSignature() const { return m_rootSignature.Get(); }
+    D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &m_vertexBufferView; }
+
 
 private:
     void WaitForGpuComplete();
@@ -24,6 +28,11 @@ private:
     bool CreateSwapChain(HWND hWnd);
     bool CreateCommandObjects();
     bool CreateRenderTargetViews();
+
+private:
+    void CreateRootSignature();
+    void CreatePipelineState();
+    void CreateTriangleResources();
 
 private:
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_factory;
@@ -41,4 +50,10 @@ private:
 
     int m_nWndClientWidth = 0;
     int m_nWndClientHeight = 0;
+
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
+    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 };

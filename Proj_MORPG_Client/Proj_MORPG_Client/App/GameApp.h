@@ -2,7 +2,6 @@
 #pragma once
 
 #include <windows.h>
-#include <memory>
 
 #include "App/stdafx.h"
 #include "Engine/Renderer/Renderer.h"

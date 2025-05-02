@@ -1,4 +1,7 @@
 #include "Engine/Renderer/Renderer.h"
+#include "Engine/RenderTypes/Vertex.h"
+#include "Engine/Util/ShaderUtils.h"
+#include <stdexcept>
 
 Renderer::Renderer()
 {
@@ -12,6 +15,12 @@ bool Renderer::Initialize(HWND hWnd, UINT width, UINT height)
     if (!CreateCommandObjects()) return false;
     if (!CreateSwapChain(hWnd)) return false;
     if (!CreateRenderTargetViews()) return false;
+
+    CreateRootSignature();
+    CreatePipelineState();
+
+    CreateTriangleResources();
+
     return true;
 }
 
@@ -35,6 +44,20 @@ void Renderer::BeginFrame()
     const float clearColor[] = { 0.1f, 0.2f, 0.3f, 1.0f };
     m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
     m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+    // Viewport 설정
+    D3D12_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = static_cast<float>(m_nWndClientWidth);
+    viewport.Height = static_cast<float>(m_nWndClientHeight);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    m_commandList->RSSetViewports(1, &viewport);
+
+    // ScissorRect 설정
+    D3D12_RECT scissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
+    m_commandList->RSSetScissorRects(1, &scissorRect);
 }
 
 void Renderer::EndFrame()
@@ -194,4 +217,116 @@ bool Renderer::CreateRenderTargetViews()
     }
 
     return true;
+}
+
+void Renderer::CreateRootSignature()
+{
+    D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
+    rootSigDesc.NumParameters = 0;
+    rootSigDesc.pParameters = nullptr;
+    rootSigDesc.NumStaticSamplers = 0;
+    rootSigDesc.pStaticSamplers = nullptr;
+    rootSigDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+    Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+
+    HRESULT hr = D3D12SerializeRootSignature(
+        &rootSigDesc,
+        D3D_ROOT_SIGNATURE_VERSION_1,
+        &serializedRootSig,
+        &errorBlob
+    );
+
+    if (FAILED(hr))
+    {
+        if (errorBlob)
+            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+        throw std::runtime_error("Failed to serialize root signature.");
+    }
+
+    m_device->CreateRootSignature(
+        0,
+        serializedRootSig->GetBufferPointer(),
+        serializedRootSig->GetBufferSize(),
+        IID_PPV_ARGS(&m_rootSignature)
+    );
+}
+
+void Renderer::CreatePipelineState()
+{
+    // 정점 구조 입력 레이아웃 정의
+    D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+          0, D3D12_APPEND_ALIGNED_ELEMENT,
+          D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
+          0, D3D12_APPEND_ALIGNED_ELEMENT,
+          D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+    };
+
+    // 셰이더 로드 (.cso가 있으면 로드, 없으면 컴파일)
+    auto vsBlob = LoadShader(
+        L"Shaders\\Triangle.hlsl", "VSMain", "vs_5_1", L"Shaders\\TriangleVS.cso");
+
+    auto psBlob = LoadShader(
+        L"Shaders\\Triangle.hlsl", "PSMain", "ps_5_1", L"Shaders\\TrianglePS.cso");
+
+    // PSO 디스크립터 설정
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+    psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };
+    psoDesc.pRootSignature = m_rootSignature.Get();
+    psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
+    psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
+    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psoDesc.DepthStencilState.DepthEnable = FALSE;
+    psoDesc.DepthStencilState.StencilEnable = FALSE;
+    psoDesc.SampleMask = UINT_MAX;
+    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.SampleDesc.Count = 1;
+
+    HRESULT hr = m_device->CreateGraphicsPipelineState(
+        &psoDesc, IID_PPV_ARGS(&m_pipelineState));
+
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create PSO");
+    }
+}
+
+void Renderer::CreateTriangleResources()
+{
+    Vertex triangleVertices[] = {
+       { { 0.0f, 0.25f, 0.0f }, { 1, 0, 0, 1 } },
+       { { 0.25f, -0.25f, 0.0f }, { 0, 1, 0, 1 } },
+       { { -0.25f, -0.25f, 0.0f }, { 0, 0, 1, 1 } }
+    };
+
+    const UINT vbSize = sizeof(triangleVertices);
+
+    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+    CD3DX12_RESOURCE_DESC bufDesc = CD3DX12_RESOURCE_DESC::Buffer(vbSize);
+
+    m_device->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &bufDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&m_vertexBuffer));
+
+    void* mappedData = nullptr;
+    CD3DX12_RANGE readRange(0, 0);
+    m_vertexBuffer->Map(0, &readRange, &mappedData);
+    memcpy(mappedData, triangleVertices, vbSize);
+    m_vertexBuffer->Unmap(0, nullptr);
+
+    m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+    m_vertexBufferView.SizeInBytes = vbSize;
+    m_vertexBufferView.StrideInBytes = sizeof(Vertex);
 }

@@ -45,7 +45,7 @@ bool GameApp::Initialize(HINSTANCE hInstance, int nCmdShow, WNDPROC wndProc)
 
     // æ¿ √ ±‚»≠
     m_scene = std::make_unique<Scene>();
-    m_scene->Initialize();
+    m_scene->Initialize(m_renderer.get());
 
     return true;
 }

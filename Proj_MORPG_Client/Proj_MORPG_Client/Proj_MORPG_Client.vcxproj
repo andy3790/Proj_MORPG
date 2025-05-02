@@ -121,6 +121,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,15 +136,24 @@
     <ClCompile Include="App\stdafx.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Engine\Scene\Scene.cpp" />
+    <ClCompile Include="Engine\Util\ShaderUtils.cpp" />
     <ClCompile Include="ThirdParty\DDSTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\GameApp.h" />
     <ClInclude Include="App\stdafx.h" />
     <ClInclude Include="Engine\Renderer\Renderer.h" />
+    <ClInclude Include="Engine\RenderTypes\Vertex.h" />
     <ClInclude Include="Engine\Scene\Scene.h" />
+    <ClInclude Include="Engine\Util\ShaderUtils.h" />
     <ClInclude Include="ThirdParty\d3dx12.h" />
     <ClInclude Include="ThirdParty\DDSTextureLoader12.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Triangle.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
