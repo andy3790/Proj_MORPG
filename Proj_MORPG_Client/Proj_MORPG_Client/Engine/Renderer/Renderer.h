@@ -25,6 +25,7 @@ public: // Getter
 private:
     void WaitForGpuComplete();
     bool CreateDevice();
+    void CreateFenceAndSyncObjects();
     bool CreateSwapChain(HWND hWnd);
     bool CreateCommandObjects();
     bool CreateRenderTargetViews();
@@ -41,6 +42,10 @@ private:
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocator;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
+
+    Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+    UINT64 m_fenceValue = 0;
+    HANDLE m_fenceEvent = nullptr;
 
     static const UINT m_nSwapChainBuffers = 2;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[m_nSwapChainBuffers];

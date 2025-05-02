@@ -12,6 +12,7 @@ Renderer::Renderer()
 bool Renderer::Initialize(HWND hWnd, UINT width, UINT height)
 {
     if (!CreateDevice()) return false;
+    CreateFenceAndSyncObjects();
     if (!CreateCommandObjects()) return false;
     if (!CreateSwapChain(hWnd)) return false;
     if (!CreateRenderTargetViews()) return false;
@@ -82,6 +83,9 @@ void Renderer::EndFrame()
 
     // ´ÙÀ½ ¹é¹öÆÛ ÀÎµ¦½º È¹µæ
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+    // Fence ´ë±â
+    WaitForGpuComplete();
 }
 
 void Renderer::Shutdown()
@@ -98,29 +102,21 @@ void Renderer::Shutdown()
     m_swapChain.Reset();
     m_device.Reset();
     m_factory.Reset();
+
+    CloseHandle(m_fenceEvent);
 }
 
 void Renderer::WaitForGpuComplete()
 {
-    Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-    UINT64 fenceValue = 1;
-    HANDLE fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    const UINT64 currentFence = m_fenceValue;
+    m_commandQueue->Signal(m_fence.Get(), currentFence);
+    m_fenceValue++;
 
-    if (FAILED(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
-        return;
-
-    if (FAILED(m_commandQueue->Signal(fence.Get(), fenceValue)))
-        return;
-
-    if (fence->GetCompletedValue() < fenceValue)
+    if (m_fence->GetCompletedValue() < currentFence)
     {
-        if (FAILED(fence->SetEventOnCompletion(fenceValue, fenceEvent)))
-            return;
-
-        WaitForSingleObject(fenceEvent, INFINITE);
+        m_fence->SetEventOnCompletion(currentFence, m_fenceEvent);
+        WaitForSingleObject(m_fenceEvent, INFINITE);
     }
-
-    CloseHandle(fenceEvent);
 }
 
 
@@ -147,6 +143,13 @@ bool Renderer::CreateDevice()
             return true;
     }
     return false;
+}
+
+void Renderer::CreateFenceAndSyncObjects()
+{
+    m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+    m_fenceValue = 1;
+    m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 bool Renderer::CreateCommandObjects()
