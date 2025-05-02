@@ -8,11 +8,15 @@ class Renderer
 public:
     Renderer();
     ~Renderer() {};
+
 public:
     bool Initialize(HWND hWnd, UINT width, UINT height);
     void BeginFrame();
     void EndFrame();
     void Shutdown();
+
+public: // Getter
+    ID3D12GraphicsCommandList* GetCommandList() { return m_commandList.Get(); }
 
 private:
     void WaitForGpuComplete();

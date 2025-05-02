@@ -6,6 +6,9 @@
 
 #include "App/stdafx.h"
 #include "Engine/Renderer/Renderer.h"
+#include "Engine/Scene/Scene.h"
+
+class Scene;
 
 class GameApp
 {
@@ -23,4 +26,5 @@ private:
     UINT m_clientHeight = 720;
 
     std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<Scene> m_scene;
 };

@@ -43,13 +43,22 @@ bool GameApp::Initialize(HINSTANCE hInstance, int nCmdShow, WNDPROC wndProc)
     if (!m_renderer->Initialize(m_hWnd, m_clientWidth, m_clientHeight))
         return false;
 
+    // æ¿ √ ±‚»≠
+    m_scene = std::make_unique<Scene>();
+    m_scene->Initialize();
+
     return true;
 }
 
 void GameApp::Update()
 {
     m_renderer->BeginFrame();
-    // TODO: æ¿, UI µÓ ∑ª¥ı∏µ
+
+    if (m_scene) {
+        m_scene->Update(0.0f); // deltaTime¿∫ ≥™¡ﬂø° √≥∏Æ
+        m_scene->Render(m_renderer->GetCommandList());
+    }
+
     m_renderer->EndFrame();
 }
 

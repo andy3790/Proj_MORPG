@@ -35,6 +35,9 @@
     <Filter Include="Engine\Renderer">
       <UniqueIdentifier>{c925924d-a5a1-4b5d-9489-ec9bd4115168}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene">
+      <UniqueIdentifier>{9b48009c-0ff3-4280-ae9d-2ce52461ace6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameApp.cpp">
@@ -52,6 +55,9 @@
     <ClCompile Include="Engine\Renderer\Renderer.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Scene\Scene.cpp">
+      <Filter>Engine\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\GameApp.h">
@@ -68,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Renderer\Renderer.h">
       <Filter>Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Scene.h">
+      <Filter>Engine\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

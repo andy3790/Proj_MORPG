@@ -134,12 +134,14 @@
     <ClCompile Include="App\Main.cpp" />
     <ClCompile Include="App\stdafx.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
+    <ClCompile Include="Engine\Scene\Scene.cpp" />
     <ClCompile Include="ThirdParty\DDSTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\GameApp.h" />
     <ClInclude Include="App\stdafx.h" />
     <ClInclude Include="Engine\Renderer\Renderer.h" />
+    <ClInclude Include="Engine\Scene\Scene.h" />
     <ClInclude Include="ThirdParty\d3dx12.h" />
     <ClInclude Include="ThirdParty\DDSTextureLoader12.h" />
   </ItemGroup>
