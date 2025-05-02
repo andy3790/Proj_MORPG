@@ -17,12 +17,47 @@ bool Renderer::Initialize(HWND hWnd, UINT width, UINT height)
 
 void Renderer::BeginFrame()
 {
-    // TODO: Clear, Set Render Target 등
+    m_commandAllocator->Reset();
+    m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+
+    // 리소스 상태 전환: Present -> RenderTarget
+    D3D12_RESOURCE_BARRIER barrier = {};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition.pResource = m_renderTargets[m_frameIndex].Get();
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    m_commandList->ResourceBarrier(1, &barrier);
+
+    // RTV 설정 및 Clear
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
+    const float clearColor[] = { 0.1f, 0.2f, 0.3f, 1.0f };
+    m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+    m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 }
 
 void Renderer::EndFrame()
 {
+// RenderTarget → Present 상태 전환
+    D3D12_RESOURCE_BARRIER barrier = {};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition.pResource = m_renderTargets[m_frameIndex].Get();
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    m_commandList->ResourceBarrier(1, &barrier);
+
+    // 커맨드 리스트 종료 및 제출
+    m_commandList->Close();
+    ID3D12CommandList* cmdLists[] = { m_commandList.Get() };
+    m_commandQueue->ExecuteCommandLists(1, cmdLists);
+
+    // Present
     m_swapChain->Present(1, 0);
+
+    // 다음 백버퍼 인덱스 획득
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
@@ -135,9 +170,28 @@ bool Renderer::CreateSwapChain(HWND hWnd)
     return true;
 }
 
-
 bool Renderer::CreateRenderTargetViews()
 {
-    // TODO: Create RTV heap and views
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+    rtvHeapDesc.NumDescriptors = m_nSwapChainBuffers;
+    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    if (FAILED(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap))))
+        return false;
+
+    m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+    for (UINT i = 0; i < m_nSwapChainBuffers; ++i)
+    {
+        if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i]))))
+            return false;
+
+        m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
+        rtvHandle.Offset(1, m_rtvDescriptorSize);
+    }
+
     return true;
 }

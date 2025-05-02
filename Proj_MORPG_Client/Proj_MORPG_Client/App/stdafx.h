@@ -25,6 +25,7 @@
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
+#include "ThirdParty/d3dx12.h"
 
 #include <DXGIDebug.h>
 
