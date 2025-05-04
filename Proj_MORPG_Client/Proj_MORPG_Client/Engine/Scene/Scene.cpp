@@ -8,6 +8,7 @@ void Scene::Initialize(Renderer* renderer)
 {
     m_renderer = renderer;
     m_camera = std::make_unique<Camera>();
+    m_camera->Initialize(m_renderer->GetDevice());
 
     m_renderer->SetCamera(m_camera.get());
 }

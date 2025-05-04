@@ -21,12 +21,10 @@ public: // Getter
     ID3D12PipelineState* GetPipelineState() const { return m_pipelineState.Get(); }
     ID3D12RootSignature* GetRootSignature() const { return m_rootSignature.Get(); }
     D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &m_vertexBufferView; }
+    ID3D12Device* GetDevice() const { return m_device.Get(); }
 
 public: // Setter
-    void SetCamera(Camera* camera) { 
-        m_camera = camera; 
-        m_camera->Initialize(m_device.Get());
-    };
+    void SetCamera(Camera* camera) { m_camera = camera; };
 
 private:
     void WaitForGpuComplete();
