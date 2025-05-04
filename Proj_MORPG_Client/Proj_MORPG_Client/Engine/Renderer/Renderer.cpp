@@ -57,19 +57,8 @@ void Renderer::BeginFrame()
     m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
     m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
-    // Viewport 설정
-    D3D12_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = static_cast<float>(m_nWndClientWidth);
-    viewport.Height = static_cast<float>(m_nWndClientHeight);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    m_commandList->RSSetViewports(1, &viewport);
-
-    // ScissorRect 설정
-    D3D12_RECT scissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
-    m_commandList->RSSetScissorRects(1, &scissorRect);
+    // ViewPort, ScissorRect 적용 (Camera 관리)
+    m_camera->ApplyViewportsAndScissorRects(m_commandList.Get());
 }
 
 void Renderer::EndFrame()
