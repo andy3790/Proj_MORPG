@@ -1,5 +1,12 @@
 // Triangle.hlsl
 
+cbuffer Camera : register(b0)
+{
+    matrix view;
+    matrix projection;
+};
+
+///////////////////////////////////////////////////////////
 struct VSInput
 {
     float3 position : POSITION;

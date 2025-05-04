@@ -3,6 +3,12 @@
 #include "App/stdafx.h"
 #include <dxgi1_6.h>
 
+struct CameraData
+{
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
+};
+
 class Renderer
 {
 public:
@@ -61,4 +67,9 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_cbvHeap;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_cameraConstantBuffer;
+    CameraData* m_mappedCameraData = nullptr;
 };

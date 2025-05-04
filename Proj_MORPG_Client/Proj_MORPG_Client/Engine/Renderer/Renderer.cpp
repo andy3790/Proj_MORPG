@@ -22,6 +22,43 @@ bool Renderer::Initialize(HWND hWnd, UINT width, UINT height)
 
     CreateTriangleResources();
 
+    { // cbvHeapDesc
+        D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+        cbvHeapDesc.NumDescriptors = 1;
+        cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+        cbvHeapDesc.NodeMask = 0;
+
+        m_device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap));
+    }
+
+    {
+        UINT bufferSize = (sizeof(CameraData) + 255) & ~255; // 256바이트 정렬
+
+        CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+        CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+        m_device->CreateCommittedResource(
+            &heapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &bufferDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&m_cameraConstantBuffer)
+        );
+
+        // Map
+        CD3DX12_RANGE readRange(0, 0); // 읽지 않음
+        m_cameraConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedCameraData));
+
+        // CVB 생성
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+        cbvDesc.BufferLocation = m_cameraConstantBuffer->GetGPUVirtualAddress();
+        cbvDesc.SizeInBytes = bufferSize;
+
+        m_device->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
+    }
+
     return true;
 }
 
@@ -29,6 +66,17 @@ void Renderer::BeginFrame()
 {
     m_commandAllocator->Reset();
     m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+
+    // 작업 전 루트 시그니쳐 바인딩
+    m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+
+    // CBV 바인딩
+    ID3D12DescriptorHeap* heaps[] = { m_cbvHeap.Get() };
+    m_commandList->SetDescriptorHeaps(1, heaps);
+
+    // b0 슬롯에 바인딩
+    m_commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
+
 
     // 리소스 상태 전환: Present -> RenderTarget
     D3D12_RESOURCE_BARRIER barrier = {};
@@ -59,6 +107,14 @@ void Renderer::BeginFrame()
     // ScissorRect 설정
     D3D12_RECT scissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
     m_commandList->RSSetScissorRects(1, &scissorRect);
+
+    // Camera Update
+    CameraData cam;
+    cam.view = XMMatrixTranspose(XMMatrixIdentity());       // View 행렬
+    cam.projection = XMMatrixTranspose(XMMatrixIdentity()); // Projection 행렬
+
+    *m_mappedCameraData = cam;
+
 }
 
 void Renderer::EndFrame()
@@ -224,9 +280,15 @@ bool Renderer::CreateRenderTargetViews()
 
 void Renderer::CreateRootSignature()
 {
+    CD3DX12_DESCRIPTOR_RANGE cbvRange;
+    cbvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // register(b0)
+
+    CD3DX12_ROOT_PARAMETER rootParam;
+    rootParam.InitAsDescriptorTable(1, &cbvRange);
+
     D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
-    rootSigDesc.NumParameters = 0;
-    rootSigDesc.pParameters = nullptr;
+    rootSigDesc.NumParameters = 1;
+    rootSigDesc.pParameters = &rootParam;
     rootSigDesc.NumStaticSamplers = 0;
     rootSigDesc.pStaticSamplers = nullptr;
     rootSigDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
