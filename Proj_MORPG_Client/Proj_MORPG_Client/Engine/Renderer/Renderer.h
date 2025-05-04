@@ -1,13 +1,8 @@
 #pragma once
 
 #include "App/stdafx.h"
+#include "Engine/Camera/Camera.h"
 #include <dxgi1_6.h>
-
-struct CameraData
-{
-    DirectX::XMMATRIX view;
-    DirectX::XMMATRIX projection;
-};
 
 class Renderer
 {
@@ -27,6 +22,11 @@ public: // Getter
     ID3D12RootSignature* GetRootSignature() const { return m_rootSignature.Get(); }
     D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &m_vertexBufferView; }
 
+public: // Setter
+    void SetCamera(Camera* camera) { 
+        m_camera = camera; 
+        m_camera->Initialize(m_device.Get());
+    };
 
 private:
     void WaitForGpuComplete();
@@ -68,8 +68,5 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_cbvHeap;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_cameraConstantBuffer;
-    CameraData* m_mappedCameraData = nullptr;
+    Camera* m_camera;
 };

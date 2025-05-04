@@ -134,6 +134,7 @@
     <ClCompile Include="App\GameApp.cpp" />
     <ClCompile Include="App\Main.cpp" />
     <ClCompile Include="App\stdafx.cpp" />
+    <ClCompile Include="Engine\Camera\Camera.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Engine\Scene\Scene.cpp" />
     <ClCompile Include="Engine\Util\ShaderUtils.cpp" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="App\GameApp.h" />
     <ClInclude Include="App\stdafx.h" />
+    <ClInclude Include="Engine\Camera\Camera.h" />
     <ClInclude Include="Engine\Renderer\Renderer.h" />
     <ClInclude Include="Engine\RenderTypes\Vertex.h" />
     <ClInclude Include="Engine\Scene\Scene.h" />

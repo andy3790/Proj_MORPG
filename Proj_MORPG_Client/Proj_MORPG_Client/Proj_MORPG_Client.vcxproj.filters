@@ -44,6 +44,9 @@
     <Filter Include="Engine\Util">
       <UniqueIdentifier>{4fab9daa-1e70-4601-b54c-862a29e09115}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Camera">
+      <UniqueIdentifier>{8da66b99-0971-485d-b46f-c40ea7d5aa3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameApp.cpp">
@@ -66,6 +69,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Util\ShaderUtils.cpp">
       <Filter>Engine\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Camera\Camera.cpp">
+      <Filter>Engine\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +98,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Util\ShaderUtils.h">
       <Filter>Engine\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Camera\Camera.h">
+      <Filter>Engine\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
