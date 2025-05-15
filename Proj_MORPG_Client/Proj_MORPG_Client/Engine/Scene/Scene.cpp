@@ -11,6 +11,9 @@ void Scene::Initialize(Renderer* renderer)
     m_camera->Initialize(m_renderer->GetDevice());
 
     m_renderer->SetCamera(m_camera.get());
+
+    m_mesh = std::make_unique<Mesh>();
+    m_mesh->Initialize(renderer->GetDevice());
 }
 
 void Scene::Update(float deltaTime)
@@ -25,8 +28,10 @@ void Scene::Render(ID3D12GraphicsCommandList* commandList)
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    D3D12_VERTEX_BUFFER_VIEW* vbView = m_renderer->GetVertexBufferView();
-    commandList->IASetVertexBuffers(0, 1, vbView);
+    m_mesh->Render(commandList);
 
-    commandList->DrawInstanced(3, 1, 0, 0); // 삼각형 1개 (정점 3개)
+    //D3D12_VERTEX_BUFFER_VIEW* vbView = m_renderer->GetVertexBufferView();
+    //commandList->IASetVertexBuffers(0, 1, vbView);
+
+    //commandList->DrawInstanced(3, 1, 0, 0); // 삼각형 1개 (정점 3개)
 }

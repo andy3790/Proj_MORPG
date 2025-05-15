@@ -47,6 +47,9 @@
     <Filter Include="Engine\Camera">
       <UniqueIdentifier>{8da66b99-0971-485d-b46f-c40ea7d5aa3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Mesh">
+      <UniqueIdentifier>{43f53dc8-3051-4e8b-9c2e-9fb9dc31b06e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameApp.cpp">
@@ -72,6 +75,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Camera\Camera.cpp">
       <Filter>Engine\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Mesh\Mesh.cpp">
+      <Filter>Engine\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Camera\Camera.h">
       <Filter>Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Mesh\Mesh.h">
+      <Filter>Engine\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
