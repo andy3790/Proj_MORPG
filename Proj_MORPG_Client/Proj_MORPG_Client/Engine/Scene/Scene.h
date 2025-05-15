@@ -1,6 +1,7 @@
 #pragma once
 #include "App/stdafx.h"
 #include "Engine/Camera/Camera.h"
+#include "Engine/GameObject/GameObject.h"
 #include "Engine/Mesh/Mesh.h"
 
 class Renderer;
@@ -24,4 +25,5 @@ private:
     std::unique_ptr<Camera> m_camera;
 
     std::unique_ptr<Mesh> m_mesh;
+    std::unique_ptr<GameObject> m_obj;
 };

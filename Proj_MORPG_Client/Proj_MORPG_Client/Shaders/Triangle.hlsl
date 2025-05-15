@@ -6,6 +6,11 @@ cbuffer Camera : register(b0)
     matrix projection;
 };
 
+cbuffer GameObjectInfo : register(b1)
+{
+    matrix world;
+}
+
 ///////////////////////////////////////////////////////////
 struct VSInput
 {
@@ -22,7 +27,7 @@ struct PSInput
 PSInput VSMain(VSInput input)
 {
     PSInput output;
-    output.position = float4(input.position, 1.0);
+    output.position = mul(float4(input.position, 1.0), world);
     output.color = input.color;
     return output;
 }

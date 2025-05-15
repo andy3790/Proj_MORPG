@@ -223,15 +223,18 @@ bool Renderer::CreateRenderTargetViews()
 
 void Renderer::CreateRootSignature()
 {
-    CD3DX12_DESCRIPTOR_RANGE cbvRange;
-    cbvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // register(b0) Camera
+    CD3DX12_DESCRIPTOR_RANGE cbvRange[2];
+    cbvRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0); // register(b0) Camera
+    cbvRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1); // register(b1) Object World Matrix
 
-    CD3DX12_ROOT_PARAMETER rootParam;
-    rootParam.InitAsDescriptorTable(1, &cbvRange);
+    CD3DX12_ROOT_PARAMETER rootParams[2];
+    rootParams[0].InitAsDescriptorTable(1, &cbvRange[0]);
+    rootParams[1].InitAsDescriptorTable(1, &cbvRange[1]);
+
 
     D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
-    rootSigDesc.NumParameters = 1;
-    rootSigDesc.pParameters = &rootParam;
+    rootSigDesc.NumParameters = _countof(rootParams);
+    rootSigDesc.pParameters = rootParams;
     rootSigDesc.NumStaticSamplers = 0;
     rootSigDesc.pStaticSamplers = nullptr;
     rootSigDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;

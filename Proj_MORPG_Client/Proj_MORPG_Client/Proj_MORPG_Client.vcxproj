@@ -135,6 +135,7 @@
     <ClCompile Include="App\Main.cpp" />
     <ClCompile Include="App\stdafx.cpp" />
     <ClCompile Include="Engine\Camera\Camera.cpp" />
+    <ClCompile Include="Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Engine\Mesh\Mesh.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Engine\Scene\Scene.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="App\GameApp.h" />
     <ClInclude Include="App\stdafx.h" />
     <ClInclude Include="Engine\Camera\Camera.h" />
+    <ClInclude Include="Engine\GameObject\GameObject.h" />
     <ClInclude Include="Engine\Mesh\Mesh.h" />
     <ClInclude Include="Engine\Renderer\Renderer.h" />
     <ClInclude Include="Engine\RenderTypes\Vertex.h" />
