@@ -5,11 +5,6 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-struct CameraData {
-    XMMATRIX view;
-    XMMATRIX projection;
-};
-
 class Camera {
 public:
     void Initialize(ID3D12Device* device);
@@ -25,9 +20,14 @@ public: // setter
     void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);
 
 private:
+    struct CameraData {
+        XMMATRIX view;
+        XMMATRIX projection;
+    };
+
     CameraData m_data;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
     CameraData* m_mappedData = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_cbvHeap;
 
     D3D12_VIEWPORT m_viewport;

@@ -66,5 +66,5 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
-    Camera* m_camera;
+    Camera* m_camera = nullptr;
 };

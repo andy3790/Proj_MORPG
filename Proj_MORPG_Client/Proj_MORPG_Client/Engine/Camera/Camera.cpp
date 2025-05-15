@@ -39,14 +39,29 @@ void Camera::Initialize(ID3D12Device* device)
         m_viewport = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
         m_scissorRect = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
     }
+    {
+        XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f);     // 카메라 위치
+        XMVECTOR target = XMVectorZero();                        // 바라보는 위치
+        XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);        // 상단 방향
+
+        m_data.view = XMMatrixLookAtLH(eye, target, up);
+
+        float aspect = static_cast<float>(FRAME_BUFFER_WIDTH) / static_cast<float>(FRAME_BUFFER_HEIGHT);
+        m_data.projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, aspect, 0.1f, 100.0f);
+
+        *m_mappedData = m_data;
+    }
 }
 
 void Camera::Update()
 {
-    CameraData cam;
-    cam.view = XMMatrixTranspose(XMMatrixIdentity());       // 추후 View 행렬로 교체
-    cam.projection = XMMatrixTranspose(XMMatrixIdentity()); // 추후 Projection 행렬로 교체
-    *m_mappedData = cam;
+    XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f);     // 카메라 위치
+    XMVECTOR target = XMVectorZero();                        // 바라보는 위치
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);        // 상단 방향
+
+    m_data.view = XMMatrixLookAtLH(eye, target, up);
+
+    *m_mappedData = m_data;
 }
 
 void Camera::ApplyViewportsAndScissorRects(ID3D12GraphicsCommandList* commandList)

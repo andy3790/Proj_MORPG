@@ -40,7 +40,6 @@ void Renderer::BeginFrame()
     // b0 슬롯에 바인딩
     m_commandList->SetGraphicsRootDescriptorTable(0, m_camera->GetGpuHandle());
 
-
     // 리소스 상태 전환: Present -> RenderTarget
     D3D12_RESOURCE_BARRIER barrier = {};
     barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
