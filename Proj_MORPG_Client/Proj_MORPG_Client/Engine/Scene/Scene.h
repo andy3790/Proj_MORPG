@@ -24,6 +24,6 @@ private:
     Renderer* m_renderer = nullptr;
     std::unique_ptr<Camera> m_camera;
 
-    std::unique_ptr<Mesh> m_mesh;
-    std::unique_ptr<GameObject> m_obj;
+    std::shared_ptr<Mesh> m_sharedMesh;
+    std::vector<std::unique_ptr<GameObject>> m_objects;
 };

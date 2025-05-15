@@ -12,22 +12,31 @@ void Scene::Initialize(Renderer* renderer)
 
     m_renderer->SetCamera(m_camera.get());
 
-    m_mesh = std::make_unique<Mesh>();
-    m_mesh->Initialize(renderer->GetDevice());
 
+    // 공유 메쉬 생성 (삼각형)
+    m_sharedMesh = std::make_shared<Mesh>();
+    m_sharedMesh->Initialize(m_renderer->GetDevice());
 
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    mesh->Initialize(renderer->GetDevice());
+    // GameObject 여러 개 생성
+    for (int i = 0; i < 5; ++i)
+    {
+        auto obj = std::make_unique<GameObject>();
+        obj->Initialize(m_renderer->GetDevice(), m_sharedMesh);
 
-    m_obj = std::make_unique<GameObject>();
-    m_obj->Initialize(renderer->GetDevice(), mesh);
-    m_obj->SetPosition(0, 0, 0);
+        float x = (i - 2) * 0.6f;
+        obj->SetPosition(x, 0.0f, 0.0f);
+
+        m_objects.push_back(std::move(obj));
+    }
 }
 
 void Scene::Update(float deltaTime)
 {
-    // TODO: 게임 로직, 오브젝트 이동 등
-    m_obj->Update();
+    for (auto& obj : m_objects)
+    {
+        obj->RotateY(deltaTime); // 간단한 회전
+        obj->Update();
+    }
 }
 
 void Scene::Render(ID3D12GraphicsCommandList* commandList)
@@ -35,13 +44,8 @@ void Scene::Render(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(m_renderer->GetPipelineState());
     commandList->SetGraphicsRootSignature(m_renderer->GetRootSignature());
 
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    //m_mesh->Render(commandList);
-    m_obj->Render(commandList);
-
-    //D3D12_VERTEX_BUFFER_VIEW* vbView = m_renderer->GetVertexBufferView();
-    //commandList->IASetVertexBuffers(0, 1, vbView);
-
-    //commandList->DrawInstanced(3, 1, 0, 0); // 삼각형 1개 (정점 3개)
+    for (auto& obj : m_objects)
+    {
+        obj->Render(commandList);
+    }
 }
