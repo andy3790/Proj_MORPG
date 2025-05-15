@@ -20,7 +20,6 @@ public: // Getter
     ID3D12GraphicsCommandList* GetCommandList() const { return m_commandList.Get(); }
     ID3D12PipelineState* GetPipelineState() const { return m_pipelineState.Get(); }
     ID3D12RootSignature* GetRootSignature() const { return m_rootSignature.Get(); }
-    D3D12_VERTEX_BUFFER_VIEW* GetVertexBufferView() { return &m_vertexBufferView; }
     ID3D12Device* GetDevice() const { return m_device.Get(); }
 
 public: // Setter
@@ -37,7 +36,6 @@ private:
 private:
     void CreateRootSignature();
     void CreatePipelineState();
-    void CreateTriangleResources();
 
 private:
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_factory;
@@ -62,9 +60,6 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
     Camera* m_camera = nullptr;
 };

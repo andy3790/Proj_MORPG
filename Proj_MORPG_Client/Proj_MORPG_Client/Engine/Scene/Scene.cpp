@@ -44,6 +44,17 @@ void Scene::Render(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(m_renderer->GetPipelineState());
     commandList->SetGraphicsRootSignature(m_renderer->GetRootSignature());
 
+    //// 공통 힙 (카메라 + 오브젝트 CBV가 들어있는 Heap들)
+    //ID3D12DescriptorHeap* heaps[] = {
+    //    m_renderer->GetCameraDescriptorHeap(), // b0 heap
+    //    m_objects[0]->GetCbvHeap()             // b1 heap (모두 같은 구조라면 하나만 대표로 사용 가능)
+    //};
+    //cmdList->SetDescriptorHeaps(1, heaps); // 한번만 호출
+
+    //// b0: 카메라 CBV 바인딩
+    //cmdList->SetGraphicsRootDescriptorTable(0, m_renderer->GetCameraGpuHandle());
+
+
     for (auto& obj : m_objects)
     {
         obj->Render(commandList);

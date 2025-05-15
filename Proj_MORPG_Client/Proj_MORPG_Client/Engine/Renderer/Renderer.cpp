@@ -20,8 +20,6 @@ bool Renderer::Initialize(HWND hWnd, UINT width, UINT height)
     CreateRootSignature();
     CreatePipelineState();
 
-    CreateTriangleResources();
-
     return true;
 }
 
@@ -308,36 +306,4 @@ void Renderer::CreatePipelineState()
     {
         throw std::runtime_error("Failed to create PSO");
     }
-}
-
-void Renderer::CreateTriangleResources()
-{
-    Vertex triangleVertices[] = {
-       { { 0.0f, 0.25f, 0.0f }, { 1, 0, 0, 1 } },
-       { { 0.25f, -0.25f, 0.0f }, { 0, 1, 0, 1 } },
-       { { -0.25f, -0.25f, 0.0f }, { 0, 0, 1, 1 } }
-    };
-
-    const UINT vbSize = sizeof(triangleVertices);
-
-    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-    CD3DX12_RESOURCE_DESC bufDesc = CD3DX12_RESOURCE_DESC::Buffer(vbSize);
-
-    m_device->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &bufDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&m_vertexBuffer));
-
-    void* mappedData = nullptr;
-    CD3DX12_RANGE readRange(0, 0);
-    m_vertexBuffer->Map(0, &readRange, &mappedData);
-    memcpy(mappedData, triangleVertices, vbSize);
-    m_vertexBuffer->Unmap(0, nullptr);
-
-    m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-    m_vertexBufferView.SizeInBytes = vbSize;
-    m_vertexBufferView.StrideInBytes = sizeof(Vertex);
 }
